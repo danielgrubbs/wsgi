@@ -20,7 +20,7 @@ def book(book_id):
     if book is None:
         raise NameError
     return page.format(**book)
-
+    
 
 def books():
     all_books = DB.titles()
@@ -34,7 +34,7 @@ def books():
 def resolve_path(path):
     funcs = {
         '': books,
-        'book': book
+        'book': book,
     }
 
     path = path.strip('/').split('/')
@@ -46,18 +46,19 @@ def resolve_path(path):
         func = funcs[func_name]
     except KeyError:
         raise NameError
-    
+
     return func, args
 
 
 def application(environ, start_response):
-    headers = [("Content-type", "text/html")]
+    headers = [('Content-type', 'text/html')]
     try:
         path = environ.get('PATH_INFO', None)
         if path is None:
             raise NameError
         func, args = resolve_path(path)
         body = func(*args)
+        print(body)
         status = "200 OK"
     except NameError:
         status = "404 Not Found"
@@ -70,8 +71,6 @@ def application(environ, start_response):
         headers.append(('Content-length', str(len(body))))
         start_response(status, headers)
         return [body.encode('utf8')]
-
-
 
 
 if __name__ == '__main__':
